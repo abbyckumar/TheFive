@@ -5,53 +5,42 @@
     {
       "canonical": "Avatar",
       "aliases": ["avatar"],
-      "hint": "Man joins blue aliens to save their tree."
     },
     {
       "canonical": "Avengers: Endgame",
       "aliases": ["avengers endgame", "endgame", "end game", "avengers - endgame", "avengers end game", "avengers - end game", "avengers: end game"],
-      "hint": "Everyone returns. Except Tony. Oops."
     },
     {
       "canonical": "Avatar: The Way of Water",
-      "aliases": ["avatar the way of water", "avatar way of water", "way of water", "the way of the water", "avatar - the way of the water", "avatar 2"],
-      "hint": "Blue Alien man from answer #1 moves to ocean."
+      "aliases": ["avatar the way of water", "avatar way of water", "way of water", "the way of the water", "avatar - the way of the water", "avatar 2"]
     },
     {
       "canonical": "Titanic",
       "aliases": ["titanic", "the titanic"],
-      "hint": "I'll never let go, Jack... proceeds to let go."
     },
     {
       "canonical": "Star Wars: The Force Awakens",
       "aliases": ["the force awakens", "star wars the force awakens", "star wars episode 7", "star wars - the force awakens","star wars: the force awakens", "Star Wars: Episode VII - The Force Awakens", "Star Wars: Episode VII", "Star Wars: Episode 7", "Star Wars - Episode VII", "Star Wars - Episode 7" ],
-      "hint": "New girl finds old lightsaber, instantly better than everyone."
     }
   ]
   },
-
   {
     "question": "TOP 5 most populated countries",
     "answers": [
       { "canonical": "India", 
         "aliases": [], 
-        "hint": "Always fighting with #5" 
       },
       { "canonical": "China", 
         "aliases": [], 
-        "hint": "Apparently use 45 billion chopsticks annually" 
       },
       { "canonical": "USA", 
         "aliases": ["United States", "America", "U.S.A.","United States of America"],
-        "hint": "They really like guns. Like really."
       },
       { "canonical": "Indonesia",  
         "aliases": [],
-        "hint": "Over 17000 islands. Bali is one 💘" 
       },
       { "canonical": "Pakistan",  
         "aliases": [],
-        "hint": "Always fighting with #1" 
       }
     ]
   },
@@ -61,23 +50,18 @@
   "answers": [
     { "canonical": "Taylor Swift",  
         "aliases": [],
-        "hint": "Can't Shake off the top spot" 
       },
     { "canonical": "Bad Bunny",  
         "aliases": [],
-        "hint": "Our Puerto Rican ain't no Moscow Mule" 
       },
     { "canonical": "The Weeknd",  
         "aliases": ["Weeknd"],
-        "hint": "Plays in blinding lights" 
       },
     { "canonical": "Drake",  
         "aliases": [],
-        "hint": "One Dance is all it takes" 
       },
     { "canonical": "Billie Eilish",  
         "aliases": [],
-        "hint": "Those ocean eyes" 
       }
   ]
   },
