@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Five - Daily Top 5 Quiz</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 700px;
+      margin: auto;
+      padding: 20px;
+      background: linear-gradient(to right, #e0f7fa, #f1f8e9);
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      color: #333;
+    }
+    #question {
+      font-size: 1.2rem;
+      margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #004d00;
+    }
+    .guess-box {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .guess-box input {
+      flex: 1;
+      padding: 10px;
+      font-size: 1rem;
+    }
+    .guess-box button {
+      padding: 10px 15px;
+      background-color: #455a64;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .top-five {
+      display: grid;
+      grid-template-columns: 1fr 4fr;
+      gap: 10px;
+      background: white;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 8px;
+    }
+    .streak, .timer {
+      text-align: center;
+      margin-top: 20px;
+    }
+    #revealButton {
+      display: none;
+      margin: 10px auto;
+      background-color: #d32f2f;
+      color: white;
+      font-weight: bold;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #nextGame {
+      display: none;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      text-align: center;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>The Five</h1>
+  <h2 style="text-align:center; font-weight:normal; margin-top:-10px;">Daily Top 5 Quiz</h2>
+  <p id="question"></p>
+  <div class="guess-box" id="guessBox">
+    <input type="text" id="guessInput" placeholder="Your guess..." />
+    <button onclick="submitGuess()">Submit</button>
+  </div>
+  <p class="timer">Time Left: <span id="timer">90s</span></p>
+  <button id="revealButton" onclick="revealHints()">Reveal First Letters</button>
+  <div class="top-five" id="topFiveGrid"></div>
+  <p class="streak">Streak: <span id="streak">0</span></p>
+  <div id="nextGame">
+    <h3>👋 You've played today's game.</h3>
+    <p>New Game in: <span id="countdown"></span></p>
+    <p class="streak">🔥 Your Streak: <span id="streakEnd">0</span></p>
+  </div>
+
+<script>
+let questionBank = [], prompt, canonicalAnswers, allAnswerMap;
+let correctGuesses = [null, null, null, null, null];
+let revealFirstLetterHints = [false, false, false, false, false];
+let guessCount = 0;
+let startTime, endTime;
+let timeLeft = 90;
+let streakKey = 'thefiveStreak';
+let dateKey = 'thefiveDate';
+let guessesKey = 'thefiveGuesses';
+
+fetch('questions.json')
+  .then(res => res.json())
+  .then(bank => {
+    questionBank = bank;
+    const today = new Date();
+    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
+    const questionIndex = dayOfYear % questionBank.length;
+    prompt = questionBank[questionIndex];
+    canonicalAnswers = prompt.answers.map(a => a.canonical.toLowerCase());
+    allAnswerMap = {};
+    prompt.answers.forEach(a => {
+      const canon = a.canonical.toLowerCase();
+      allAnswerMap[canon] = canon;
+      a.aliases.forEach(alias => {
+        allAnswerMap[alias.toLowerCase()] = canon;
+      });
+    });
+    document.getElementById("question").innerText = prompt.question;
+    initGame();
+  });
+
+function initGame() {
+  const today = new Date().toDateString();
+  const storedDate = localStorage.getItem(dateKey);
+  let streak = parseInt(localStorage.getItem(streakKey) || '0');
+  document.getElementById("streak").innerText = streak;
+  document.getElementById("streakEnd").innerText = streak;
+
+  if (storedDate === today) {
+    document.getElementById("guessBox").style.display = 'none';
+    document.querySelector('.timer').style.display = 'none';
+    document.getElementById("revealButton").style.display = 'none';
+    document.getElementById("nextGame").style.display = 'block';
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+    return;
+  }
+
+  document.getElementById("guessInput").addEventListener("keyup", function(event) {
+    if (event.key === "Enter") submitGuess();
+  });
+
+  const timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").innerText = timeLeft + "s";
+    if (timeLeft === 30) {
+      document.getElementById("revealButton").style.display = 'block';
+    }
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      endGame(false);
+    }
+  }, 1000);
+  renderTopFive(correctGuesses);
+}
+
+function submitGuess() {
+  const input = document.getElementById("guessInput");
+  const guess = input.value.trim().toLowerCase();
+  input.value = "";
+  if (!guess) return;
+
+  guessCount++;
+  const normalized = allAnswerMap[guess];
+  const index = canonicalAnswers.indexOf(normalized);
+
+  if (index !== -1 && !correctGuesses[index]) {
+    correctGuesses[index] = prompt.answers[index].canonical;
+  }
+  renderTopFive(correctGuesses);
+  if (correctGuesses.filter(Boolean).length === 5) {
+    endTime = Date.now();
+    endGame(true);
+  }
+}
+
+function revealHints() {
+  for (let i = 0; i < 5; i++) {
+    if (!correctGuesses[i]) revealFirstLetterHints[i] = true;
+  }
+  renderTopFive(correctGuesses);
+}
+
+function renderTopFive(guesses) {
+  const grid = document.getElementById("topFiveGrid");
+  grid.innerHTML = "";
+  for (let i = 0; i < 5; i++) {
+    const num = document.createElement("div");
+    num.textContent = `#${i + 1}`;
+    const ans = document.createElement("div");
+
+    if (guesses[i]) {
+      ans.textContent = guesses[i];
+    } else if (revealFirstLetterHints[i]) {
+      ans.textContent = prompt.answers[i].canonical.charAt(0) + "...";
+      ans.style.color = "#888";
+      ans.style.fontStyle = "italic";
+    } else {
+      ans.textContent = "_____";
+    }
+
+    grid.appendChild(num);
+    grid.appendChild(ans);
+  }
+}
+
+function endGame(completed) {
+  const today = new Date().toDateString();
+  localStorage.setItem(dateKey, today);
+  localStorage.setItem(guessesKey, JSON.stringify(correctGuesses));
+  let streak = parseInt(localStorage.getItem(streakKey) || '0');
+  if (completed) {
+    streak++;
+    localStorage.setItem(streakKey, streak);
+  } else {
+    streak = 0;
+    localStorage.setItem(streakKey, '0');
+  }
+  document.getElementById("streak").innerText = streak;
+  document.getElementById("streakEnd").innerText = streak;
+  document.getElementById("guessBox").style.display = 'none';
+  document.querySelector('.timer').style.display = 'none';
+  document.getElementById("revealButton").style.display = 'none';
+  document.getElementById("nextGame").style.display = 'block';
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+}
+
+function updateCountdown() {
+  const now = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(now.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+  const diff = tomorrow - now;
+  const h = Math.floor(diff / 1000 / 60 / 60);
+  const m = Math.floor((diff / 1000 / 60) % 60);
+  const s = Math.floor((diff / 1000) % 60);
+  document.getElementById("countdown").innerText = `${h}h ${m}m ${s}s`;
+}
+</script>
+</body>
+</html>
