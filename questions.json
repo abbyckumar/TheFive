@@ -3,12 +3,9 @@
   "question": "Top 5 highest-grossing hollywood movies of all time",
   "answers": [
     {
-      "canonical": "Avatar",
-      "aliases": ["avatar"],
-    },
+      "canonical": "Avatar", "aliases": [] },
     {
-      "canonical": "Avengers: Endgame",
-      "aliases": ["avengers endgame", "endgame", "end game", "avengers - endgame", "avengers end game", "avengers - end game", "avengers: end game"],
+      "canonical": "Avengers: Endgame",      "aliases": ["avengers endgame", "endgame", "end game", "avengers - endgame", "avengers end game", "avengers - end game", "avengers: end game"]
     },
     {
       "canonical": "Avatar: The Way of Water",
@@ -16,11 +13,11 @@
     },
     {
       "canonical": "Titanic",
-      "aliases": ["titanic", "the titanic"],
+      "aliases": ["titanic", "the titanic"]
     },
     {
       "canonical": "Star Wars: The Force Awakens",
-      "aliases": ["the force awakens", "star wars the force awakens", "star wars episode 7", "star wars - the force awakens","star wars: the force awakens", "Star Wars: Episode VII - The Force Awakens", "Star Wars: Episode VII", "Star Wars: Episode 7", "Star Wars - Episode VII", "Star Wars - Episode 7" ],
+      "aliases": ["the force awakens", "star wars the force awakens", "star wars episode 7", "star wars - the force awakens","star wars: the force awakens", "Star Wars: Episode VII - The Force Awakens", "Star Wars: Episode VII", "Star Wars: Episode 7", "Star Wars - Episode VII", "Star Wars - Episode 7" ]
     }
   ]
   },
@@ -28,19 +25,19 @@
     "question": "TOP 5 most populated countries",
     "answers": [
       { "canonical": "India", 
-        "aliases": [], 
+        "aliases": [] 
       },
       { "canonical": "China", 
-        "aliases": [], 
+        "aliases": [] 
       },
       { "canonical": "USA", 
-        "aliases": ["United States", "America", "U.S.A.","United States of America"],
+        "aliases": ["United States", "America", "U.S.A.","United States of America"]
       },
       { "canonical": "Indonesia",  
-        "aliases": [],
+        "aliases": []
       },
       { "canonical": "Pakistan",  
-        "aliases": [],
+        "aliases": []
       }
     ]
   },
@@ -49,27 +46,27 @@
   "question": "Top 5 most-streamed artists on Spotify in 2024",
   "answers": [
     { "canonical": "Taylor Swift",  
-        "aliases": [],
+        "aliases": []
       },
     { "canonical": "Bad Bunny",  
-        "aliases": [],
+        "aliases": []
       },
     { "canonical": "The Weeknd",  
-        "aliases": ["Weeknd"],
+        "aliases": ["Weeknd"]
       },
     { "canonical": "Drake",  
-        "aliases": [],
+        "aliases": []
       },
     { "canonical": "Billie Eilish",  
-        "aliases": [],
+        "aliases": []
       }
   ]
   },
   {
     "question": "Top 5 longest rivers in the world",
     "answers": [
-      { "canonical": "Nile", "aliases": [], "hint": "Not just in Egypt, but that's the famous bit." },
-      { "canonical": "Amazon", "aliases": [], "hint": "The rainforest's main squeeze." },
+      { "canonical": "Nile", "aliases": [] },
+      { "canonical": "Amazon", "aliases": [] },
       { "canonical": "Yangtze", "aliases": [], "hint": "China's lifeline and third longest." },
       { "canonical": "Mississippi-Missouri", "aliases": ["Mississippi", "Mississippi River", "Missouri River", "Mississippi Missouri"], "hint": "USA’s muddy duo." },
       { "canonical": "Yenisei", "aliases": ["Yenisey"], "hint": "Coldest major river. Siberian levels of chill." }
