@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Guess 5 - Daily Top 5 Quiz</title>
+  <title>The Five - Daily Top 5 Quiz</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -105,7 +105,7 @@
   </style>
 </head>
 <body>
-  <h1>GUESS 5</h1>
+  <h1>THE FIVE</h1>
   <h2 style="text-align:center; font-weight:normal; margin-top:-10px;">Daily Top 5 Quiz</h2>
   <p style="text-align: center; font-size: 0.9rem; color: #555; margin-top: 0; font-style: italic;">
     Created by <a href="https://www.instagram.com/abbyckumar" target="_blank" style="color: #0077cc; text-decoration: none;">@abbyckumar</a>
@@ -118,9 +118,8 @@
   </div>
   <p class="timer">Time Left: <span id="timer">--</span></p>
   <div style="text-align: center; margin-top: 20px;">
-  <button id="hintButton" style="display:none; visibility: hidden; background-color: #d32f2f; color: white; font-weight: bold; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer;">GIVE ME A CLUE</button>
-  <p id="hintWarning" style="color: #b71c1c; font-size: 0.85rem; margin-top: 8px; font-weight: bold; display: none;">⚠️ Using a clue takes 15 seconds off your timer</p>
-</div>
+  <button id="hintButton" style="display:none; visibility: hidden; background-color: #d32f2f; color: white; font-weight: bold; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer;">SHOW FIRST LETTER</button>
+  </div>
   <div class="top-five" id="topFiveGrid"></div>
   <div class="results" id="results"></div>
   <p class="streak">Streak: <span id="streak">0</span></p>
@@ -129,238 +128,6 @@
     <p style="text-align:center; font-size:1.1rem; margin-top:10px;">New Game in: <span id="countdown"></span></p>
     <p class="streak" style="margin-top: 30px; font-weight: bold;">🔥 Your Streak: <span id="streakEnd">0</span></p>
   </div>
-  <script>
-let questionBank = [];
-let prompt;
-let startTime, endTime;
-let guessCount = 0;
-let revealFirstLetterHints = [false, false, false, false, false];
-
-fetch('questions.json')
-  .then(res => res.json())
-  .then(bank => {
-    questionBank = bank;
-    const today = new Date();
-    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
-    const questionIndex = dayOfYear % questionBank.length;
-    prompt = questionBank[questionIndex];
-
-    const canonicalAnswers = prompt.answers.map(a => a.canonical.toLowerCase());
-    const allAnswerMap = {};
-    prompt.answers.forEach(a => {
-      const canon = a.canonical.toLowerCase();
-      allAnswerMap[canon] = canon;
-      a.aliases.forEach(alias => {
-        allAnswerMap[alias.toLowerCase()] = canon;
-      });
-    });
-
-    document.getElementById("question").innerText = prompt.question;
-    initGame(canonicalAnswers, allAnswerMap);
-  })
-  .catch(error => {
-    console.error('Error fetching questions:', error);
-    document.getElementById("question").innerText = "Error loading question.";
-  });
-
-function initGame(canonicalAnswers, allAnswerMap) {
-  const today = new Date().toDateString();
-  const storedDate = localStorage.getItem("testguess5Date");
-  let streak = parseInt(localStorage.getItem("testguess5Streak") || "0");
-  document.getElementById("streak").innerText = streak;
-  document.getElementById("streakEnd").innerText = streak;
-
-  const correctGuesses = JSON.parse(localStorage.getItem("testguess5Guesses") || "[null,null,null,null,null]");
-  let timeLeft = 90;
-  let timerStarted = false;
-  let timer;
-
-  const hintButton = document.getElementById("hintButton");
-  hintButton.addEventListener("click", () => {
-    for (let i = 0; i < 5; i++) {
-      if (!correctGuesses[i] && !revealFirstLetterHints[i]) {
-        revealFirstLetterHints[i] = true;
-        timeLeft = Math.max(0, timeLeft - 15);
-
-        const grid = document.getElementById("topFiveGrid").children;
-        const hintDisplay = document.createElement("div");
-        hintDisplay.textContent = "💡 Hint: " + (prompt.answers[i].hint || "No hint available.");
-        hintDisplay.style.color = "#555";
-        hintDisplay.style.fontStyle = "italic";
-        hintDisplay.style.gridColumn = "1 / span 2";
-        grid[i * 2 + 1].appendChild(hintDisplay);
-
-        renderTopFive(correctGuesses);
-        break;
-      }
-    }
-  });
-
-  if (storedDate === today) {
-    document.getElementById("guessBox").style.display = 'none';
-    document.getElementById('topFiveGrid').style.display = 'none';
-    document.getElementById('results').style.display = 'none';
-    document.querySelector('.timer').style.display = 'none';
-    document.getElementById("hintButton").style.display = 'none';
-    document.getElementById("nextGame").style.display = "block";
-  } else {
-    document.querySelector('.guess-box').style.display = 'flex';
-    document.getElementById('topFiveGrid').style.display = 'grid';
-    document.getElementById('results').style.display = 'block';
-    document.querySelector('.timer').style.display = 'block';
-    document.getElementById("guessInput").addEventListener("keyup", function(event) {
-      if (event.key === "Enter") submitGuess();
-    });
-
-    window.submitGuess = function() {
-      const guess = document.getElementById("guessInput").value.trim();
-      document.getElementById("guessInput").value = "";
-      if (!guess) return;
-
-      if (!timerStarted) {
-        timerStarted = true;
-        startTime = Date.now();
-        timer = setInterval(() => {
-          timeLeft--;
-          document.getElementById("timer").innerText = timeLeft + "s";
-
-          if (timerStarted && timeLeft === 60 && hintButton.style.display === "none") {
-  hintButton.style.display = "inline-block";
-  hintButton.style.visibility = "visible";
-  document.getElementById("hintWarning").style.display = "block";
-}
-
-          if (timeLeft <= 0) {
-            clearInterval(timer);
-            renderTopFive(correctGuesses, true);
-            endGame(false);
-          }
-        }, 1000);
-      }
-
-      guessCount++;
-      const guessKey = guess.toLowerCase();
-      const normalized = allAnswerMap[guessKey];
-      const index = canonicalAnswers.indexOf(normalized);
-      const result = document.createElement("p");
-      result.className = 'result-item';
-      if (index !== -1 && !correctGuesses[index]) {
-        correctGuesses[index] = prompt.answers[index].canonical;
-        renderTopFive(correctGuesses);
-      } else {
-        result.textContent = `❌ ${guess}`;
-        result.classList.add("incorrect");
-      }
-      document.getElementById("results").appendChild(result);
-      renderTopFive(correctGuesses);
-
-      if (correctGuesses.filter(Boolean).length === 5) {
-        clearInterval(timer);
-        endTime = Date.now();
-        endGame(true);
-      }
-    }
-
-    window.endGame = function(completed) {
-      localStorage.setItem("testguess5Guesses", JSON.stringify(correctGuesses));
-      localStorage.setItem("testguess5Date", today);
-      if (completed) {
-        streak++;
-        localStorage.setItem("testguess5Streak", streak);
-        document.getElementById("streakEnd").innerText = streak;
-        launchConfetti();
-      } else {
-        streak = 0;
-        localStorage.setItem("testguess5Streak", "0");
-      }
-      document.getElementById("streak").innerText = streak;
-      showNextGameScreen();
-    }
-
-    window.renderTopFive = function(guesses, showMissing = false) {
-      const grid = document.getElementById("topFiveGrid");
-      grid.innerHTML = "";
-      for (let i = 0; i < 5; i++) {
-        const num = document.createElement("div");
-        num.textContent = `#${i + 1}`;
-
-        const ans = document.createElement("div");
-        const userAnswer = guesses[i];
-        const correctAnswer = prompt.answers[i].canonical || prompt.answers[i];
-
-        if (userAnswer) {
-          ans.textContent = userAnswer;
-        } else if (showMissing) {
-          ans.textContent = correctAnswer;
-          ans.style.color = "red";
-          ans.style.fontWeight = "bold";
-        } else if (revealFirstLetterHints[i]) {
-  const hint = prompt.answers[i].hint;
-  ans.textContent = "💡 " + (hint || "No hint available.");
-  ans.style.color = "#888";
-  ans.style.fontStyle = "italic";
-} else {
-          ans.textContent = "_____";
-        }
-
-        grid.appendChild(num);
-        grid.appendChild(ans);
-      }
-    }
-  }
-}
-
-function launchConfetti() {
-  for (let i = 0; i < 100; i++) {
-    const confetti = document.createElement("div");
-    confetti.className = "confetti-piece";
-    confetti.style.left = Math.random() * 100 + "vw";
-    confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
-    confetti.style.animationDuration = 1 + Math.random() * 2 + "s";
-    document.body.appendChild(confetti);
-    setTimeout(() => confetti.remove(), 3000);
-  }
-}
-
-function showNextGameScreen() {
-  document.getElementById("nextGame").style.display = "block";
-  document.getElementById("guessBox").style.display = 'none';
-  document.querySelector('.timer').style.display = 'none';
-  document.getElementById("hintButton").style.display = 'none';
-  document.getElementById("hintWarning").style.display = 'none';
-}
-
-function updateCountdown() {
-  const now = new Date();
-  const tomorrow = new Date();
-  tomorrow.setDate(now.getDate() + 1);
-  tomorrow.setHours(0, 0, 0, 0);
-  const diff = tomorrow - now;
-  const h = Math.floor(diff / 1000 / 60 / 60);
-  const m = Math.floor((diff / 1000 / 60) % 60);
-  const s = Math.floor((diff / 1000) % 60);
-  document.getElementById("countdown").innerText = `${h}h ${m}m ${s}s`;
-}
-
-setInterval(updateCountdown, 1000);
-updateCountdown();
-  </script>
-
-  <div style="margin-top: 50px; padding: 20px; background: #fff8e1; border-radius: 10px; border: 1px solid #ffe082;">
-  <h3 style="text-align: center; color: #ff6f00;">How to Play 🎯</h3>
-  <ul style="font-size: 0.95rem; line-height: 1.6; padding-left: 20px; color: #444;">
-    <li>You have 90 seconds to guess the Top 5 answers to today's question.</li>
-    <li>Type your guess and hit Enter or press Submit.</li>
-    <li>If you're stuck, press the red CLUE button that appears when there's 60 seconds to go — but use it wisely as it'll cost you 15 seconds.</li>
-    <li>Get all 5 to keep your streak alive and earn some digital pride 🌟</li>
-  </ul>
-  <p style="font-size: 0.9rem; color: #555; font-style: italic; margin-top: 20px; text-align: center;">
-    This game is currently being tested by one little human (me). Feel free to send feedback — and if something breaks, don’t get angry... just bear with me as I'm just a baby. 💖
-  </p>
-</div>
-
+  <!-- JS section will follow, updated to reflect renamed game and new hint logic -->
 </body>
 </html>
-
-
-
